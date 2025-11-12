@@ -3,29 +3,35 @@ import fetch from "node-fetch";
 import cors from "cors";
 
 const app = express();
-app.use(cors()); // allow requests from your frontend (dev)
+app.use(cors());
 app.use(express.json());
 
+// ✅ POST route to handle lead submission
 app.post("/api/submit-lead", async (req, res) => {
   try {
-    const phonexaUrl = "https://cp-inst523-client.phonexa.com/short?link=KVOyp";
+    // ✅ Updated client endpoint (production)
+    const phonexaUrl = "https://leads-inst523-client.phonexa.com/fullpost/";
 
-    // Forward the client data to Phonexa
+    console.log("📨 Forwarding Lead Payload to Client API...");
+    console.log("Payload:", req.body);
+
     const response = await fetch(phonexaUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(req.body),
-      redirect: "follow" // allow redirects server-side
     });
 
-    const text = await response.text();
-    // return Phonexa response back to frontend (optional)
+    const text = await response.text(); // client API might return plain text or XML
+
+    console.log("✅ Lead sent successfully to Phonexa API");
     res.status(response.status).send(text);
   } catch (error) {
-    console.error("Error submitting lead:", error);
+    console.error("❌ Error submitting lead to client API:", error);
     res.status(500).json({ error: "Lead submission failed" });
   }
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Proxy server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Proxy server running on port ${PORT}`));
