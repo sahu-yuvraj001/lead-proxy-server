@@ -1,7 +1,6 @@
 import express from "express";
 import fetch from "node-fetch";
 import cors from "cors";
-import { URLSearchParams } from "url";
 
 const app = express();
 app.use(cors());
@@ -10,31 +9,30 @@ app.use(express.json());
 // ✅ POST route to handle lead submission
 app.post("/api/submit-lead", async (req, res) => {
   try {
-    const phonexaUrl = "https://leads-inst523-client.phonexa.com/fullpost/";
+    // Use client’s /lead/ endpoint
+    const phonexaUrl = "https://leads-inst523-client.phonexa.com/lead/";
 
-    console.log("📨 Forwarding Lead Payload to Client API...");
+    console.log("📨 Forwarding Lead Payload to Phonexa API...");
     console.log("Payload:", req.body);
 
-    // ✅ Convert JSON body to x-www-form-urlencoded format
-    const params = new URLSearchParams();
-    for (const [key, value] of Object.entries(req.body)) {
-      params.append(key, value ?? "");
-    }
-
+    // Send JSON directly
     const response = await fetch(phonexaUrl, {
       method: "POST",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Type": "application/json",
+        Accept: "application/json",
       },
-      body: params.toString(),
+      body: JSON.stringify(req.body),
     });
 
-    const text = await response.text(); // Phonexa often returns plain text or XML
-    console.log("✅ Lead sent successfully to Phonexa API");
+    // Parse response
+    const data = await response.json();
+    console.log("✅ Phonexa response:", data);
 
-    res.status(response.status).send(text);
+    // Send Phonexa response back to frontend
+    res.status(response.status).json(data);
   } catch (error) {
-    console.error("❌ Error submitting lead to client API:", error);
+    console.error("❌ Error submitting lead to Phonexa API:", error);
     res.status(500).json({ error: "Lead submission failed" });
   }
 });
