@@ -110,5 +110,8 @@ app.post("/api/submit-lead", async (req, res) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`🚀 Proxy server running on port ${PORT}`));
+// ✅ CORRECT for Render
+const PORT = process.env.PORT; // Render automatically provides this port
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Proxy server running on Render port ${PORT}`);
+});
