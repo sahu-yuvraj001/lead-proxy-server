@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: lead-proxy-server
+    env: node
+    branch: main           # branch to auto-deploy
+    buildCommand: npm install
+    startCommand: node server.js
+    autoDeploy: true       # auto-deploy on every push
+    plan: free
