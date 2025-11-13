@@ -10,14 +10,12 @@ app.use(express.json());
 
 // ✅ POST route to handle lead submission
 app.post("/api/submit-lead", async (req, res) => {
+  console.log("📨 Request received at /api/submit-lead");
+  console.log("Payload:", req.body);
+
+  const phonexaUrl = "https://leads-inst523-client.phonexa.com/lead/";
+
   try {
-    // Phonexa /lead/ endpoint (expects JSON POST)
-    const phonexaUrl = "https://leads-inst523-client.phonexa.com/lead/";
-
-    console.log("📨 Forwarding Lead Payload to Phonexa API...");
-    console.log("Payload:", req.body);
-
-    // Send JSON directly
     const response = await fetch(phonexaUrl, {
       method: "POST",
       headers: {
@@ -27,23 +25,24 @@ app.post("/api/submit-lead", async (req, res) => {
       body: JSON.stringify(req.body),
     });
 
-    // Parse response safely
     let data;
     try {
       data = await response.json();
-    } catch (err) {
-      console.warn("⚠️ Response is not JSON, raw text returned.");
+    } catch {
       data = await response.text();
     }
 
     console.log("✅ Phonexa response:", data);
-
-    // Return the response to the frontend
     res.status(response.status).json(data);
   } catch (error) {
-    console.error("❌ Error submitting lead to Phonexa API:", error);
+    console.error("❌ Error submitting lead:", error.message);
     res.status(500).json({ error: "Lead submission failed" });
   }
+});
+
+// Root route for testing
+app.get("/", (req, res) => {
+  res.send("✅ Lead Proxy Server is running successfully!");
 });
 
 // Start the server
